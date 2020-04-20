@@ -7,6 +7,62 @@
  * @format
  */
 
+function getOverrides() {
+  var hasTypeScriptEslint = false;
+
+  try {
+    var typeScriptEslint = require('@typescript-eslint');
+    hasTypeScriptEslint = true;
+  } catch (e) {
+    hasTypeScriptEslint = false;
+  }
+
+  var defaultOverrides = [
+    {
+      files: ['*.js'],
+      parser: 'babel-eslint',
+      plugins: ['flowtype'],
+      rules: {
+        // Flow Plugin
+        // The following rules are made available via `eslint-plugin-flowtype`
+
+        'flowtype/define-flow-type': 1,
+        'flowtype/use-flow-type': 1,
+      },
+    },
+    {
+      files: [
+        '*.{spec,test}.{js,ts,tsx}',
+        '**/__{mocks,tests}__/**/*.{js,ts,tsx}',
+      ],
+      env: {
+        jest: true,
+        'jest/globals': true,
+      },
+      rules: {
+        'react-native/no-inline-styles': 0,
+      },
+    },
+  ];
+
+  if (hasTypeScriptEslint) {
+    defaultOverrides.push({
+      files: ['*.ts', '*.tsx'],
+      parser: '@typescript-eslint/parser',
+      plugins: ['@typescript-eslint/eslint-plugin'],
+      rules: {
+        '@typescript-eslint/no-unused-vars': [
+          'error',
+          {argsIgnorePattern: '^_'},
+        ],
+        'no-unused-vars': 'off',
+      },
+    });
+  }
+
+  return defaultOverrides;
+}
+
 module.exports = {
   env: {
     es6: true,
@@ -36,45 +92,7 @@ module.exports = {
     },
   },
 
-  overrides: [
-    {
-      files: ['*.js'],
-      parser: 'babel-eslint',
-      plugins: ['flowtype'],
-      rules: {
-        // Flow Plugin
-        // The following rules are made available via `eslint-plugin-flowtype`
-
-        'flowtype/define-flow-type': 1,
-        'flowtype/use-flow-type': 1,
-      },
-    },
-    {
-      files: ['*.ts', '*.tsx'],
-      parser: '@typescript-eslint/parser',
-      plugins: ['@typescript-eslint/eslint-plugin'],
-      rules: {
-        '@typescript-eslint/no-unused-vars': [
-          'error',
-          {argsIgnorePattern: '^_'},
-        ],
-        'no-unused-vars': 'off',
-      },
-    },
-    {
-      files: [
-        '*.{spec,test}.{js,ts,tsx}',
-        '**/__{mocks,tests}__/**/*.{js,ts,tsx}',
-      ],
-      env: {
-        jest: true,
-        'jest/globals': true,
-      },
-      rules: {
-        'react-native/no-inline-styles': 0,
-      },
-    },
-  ],
+  overrides: getOverrides,
 
   // Map from global var to bool specifying if it can be redefined
   globals: {
